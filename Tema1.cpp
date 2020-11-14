@@ -1,64 +1,140 @@
 #include <iostream>
 using namespace std;
 
-class elevi
+class elev
 {
     string nume;
     char sex;
     int varsta;
+    float medie;
 public:
-    void citire();
-    void afisare();
+    void citire(istream &in);
+    void afisare(ostream &out);
+    friend istream& operator>>(istream &in, elev &e);
+    friend ostream& operator<<(ostream &out, elev &e);
+    elev(string, char, int, float);
+    elev();
+    void promovabilitate();
+    void performanta();
 };
-void elevi::citire()
+
+void elev::performanta()
+
+{
+    if (medie>9.5 && medie<=10)
+        cout<<"Elevului "<<nume<<" i se acorda premiul 1"<<endl;
+    if (medie>9 && medie<=9.5)
+        cout<<"Elevului "<<nume<<" i se acorda premiul 2"<<endl;
+    if (medie>8.5 && medie<=9)
+        cout<<"Elevului "<<nume<<" i se acorda premiul 3"<<endl;
+    if (medie>8 && medie<=8.5)
+        cout<<"Elevului "<<nume<<" i se acorda mentiune"<<endl;
+
+
+}
+
+void elev::promovabilitate()
+
+{
+    if (medie>=5)
+        cout<<"Elevul "<<nume<<" a promovat clasa"<<endl;
+    else
+        cout<<"Elevul "<<nume<<" nu a promovat clasa"<<endl;
+}
+
+elev::elev()
+
+{
+    this->nume="n/a";
+    this->sex='-';
+    this->varsta=0;
+    this->medie=0;
+}
+
+elev::elev(string nume, char sex, int varsta, float medie)
+
+{
+    this->nume=nume;
+    this->sex=sex;
+    this->varsta=varsta;
+    this->medie=medie;
+}
+
+void elev::citire(istream &in)
 
 {
     cout<<"Nume: ";
-    cin>>nume;
+    in>>nume;
     cout<<"Sex: ";
-    cin>>sex;
+    in>>sex;
     cout<<"Varsta: ";
-    cin>>varsta;
+    in>>varsta;
+    cout<<"Medie: ";
+    in>>medie;
 }
 
-void elevi::afisare()
+void elev::afisare(ostream &out)
 
 {
-    cout<<nume<<" "<<sex<<" "<<varsta<<endl;
+    out<<nume<<" "<<sex<<" "<<varsta<<" "<<medie<<endl;
+}
+
+istream& operator>>(istream &in, elev &e)
+
+{
+    e.citire(in);
+    return in;
+}
+
+ostream& operator<<(ostream &out, elev &e)
+
+{
+    e.afisare(out);
+    return out;
 }
 
 class clasa
 {
+    int n;
     int numar;
     char litera;
     string specializare;
     int sala;
-    elevi *c;
+    elev c[30];
 public:
-    void citire();
-    void afisare();
     clasa();
-    clasa(int,char,string,int);
+    clasa(int,char,string,int,int);
     clasa(clasa&);
     ~clasa();
     clasa& operator=(const clasa&);
+    void citire(istream &in);
     void afisare(ostream &out);
-    friend ostream& operator<<(ostream &out, clasa& x);
+    friend istream& operator>>(istream &in, clasa &x);
+    friend ostream& operator<<(ostream &out, clasa &x);
 };
 
 clasa::clasa()
+
 {
-    this->c=new elevi;
-    c=NULL;
+    this->n=0;
+    this->numar=0;
+    this->litera='-';
+    this->specializare="-";
+    this->sala=0;
 }
-clasa::clasa(int numar,char litera, string specializare, int sala)
+
+clasa::clasa(int numar,char litera, string specializare, int sala, int n)
+
 {
+    this->n=n;
     this->numar=numar;
     this->litera=litera;
     this->specializare=specializare;
     this->sala=sala;
 }
+
 clasa::clasa(clasa &x)
+
 {
     this->numar=x.numar;
     this->litera=x.litera;
@@ -66,42 +142,51 @@ clasa::clasa(clasa &x)
     this->sala=x.sala;
 
 }
+
 clasa::~clasa()
 
 {
-    delete[] c;
+
 }
 
 
-void clasa::citire()
+void clasa::citire(istream &in)
 
 {
+    cout<<"Nr. de elevi al clasei este: ";
+    in>>n;
     cout<<"Nr. clasei: ";
-    cin>>numar;
+    in>>numar;
     cout<<"Litera: ";
-    cin>>litera;
+    in>>litera;
     cout<<"Specializarea: ";
-    cin>>specializare;
+    in>>specializare;
     cout<<"Sala: ";
-    cin>>sala;
+    in>>sala;
+
 }
 
-void clasa::afisare()
+istream& operator>>(istream &in, clasa &x)
+
 {
-    cout<<numar<<" "<<litera<<" "<<specializare<<" "<<sala<<endl;
+    x.citire(in);
+    return in;
 }
+
 clasa& clasa::operator=(const clasa &x)
-{
 
+{
     numar=x.numar;
     litera=x.litera;
     specializare=x.specializare;
     sala=x.sala;
+    n=x.n;
 }
 
 void clasa::afisare(ostream &out)
+
 {
-    out<<numar<<" "<<litera<<" "<<specializare<<" "<<sala<<"\n";
+    out<<n<<" "<<numar<<" "<<litera<<" "<<specializare<<" "<<sala<<"\n";
 }
 ostream& operator<<(ostream& out, clasa& x)
 {
@@ -109,20 +194,28 @@ ostream& operator<<(ostream& out, clasa& x)
     return out;
 }
 
+
+
 int main()
 {
     clasa p;
-    const int n=5;
-    cout<<"Cititi clasa: "<<endl;
-    p.citire();
-    p.afisare();
+    int n;
+    cout<<"Cititi datele clasei"<<endl;
+    cin>>p;
+    cout<<p;
+    cout<<"Cititi numarul de elevi din clasa ";
+    cin>>n;
     cout<<"Numarul elevilor din clasa este: "<<n<<endl;
-    elevi e[30];
+    elev e[n];
     cout<<"Cititi datele elevilor: "<<endl;
-    for(int i=0; i<5; i++)
-        e[i].citire();
-    for(int i=0; i<5; i++)
-        e[i].afisare();
+    for(int i=0; i<n; i++)
+        cin>>e[i];
+    for(int i=0; i<n; i++)
+        cout<<e[i];
+    for(int i=0; i<n; i++)
+    {
+        e[i].promovabilitate();
+        e[i].performanta();
+    }
     return 0;
 }
-
