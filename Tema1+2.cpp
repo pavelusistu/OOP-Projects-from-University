@@ -1,19 +1,164 @@
 #include <iostream>
 using namespace std;
 
-class elev
+class persoana
+
 {
+protected:
     string nume;
     char sex;
     int varsta;
+public:
+    persoana(string,char,int);
+    persoana(const persoana&);
+    virtual ~persoana();
+    virtual void citire(istream &in);
+    virtual void afisare(ostream &out);
+    friend istream& operator>>(istream &in, persoana &p);
+    friend ostream& operator<<(ostream &out, persoana &p);
+    persoana& operator=(const persoana&);
+};
+
+persoana::persoana(string num=" ", char s=' ', int v=0)
+
+{
+    nume=num;
+    sex=s;
+    varsta=v;
+}
+
+persoana::persoana(const persoana& p)
+
+{
+    this->nume=p.nume;
+    this->sex=p.sex;
+    this->varsta=p.varsta;
+}
+
+persoana::~persoana()
+
+{
+
+}
+
+void persoana::citire(istream &in)
+
+{
+    cout<<"Nume: ";
+    in>>nume;
+    cout<<"Sex: ";
+    in>>sex;
+    cout<<"Varsta: ";
+    in>>varsta;
+}
+
+void persoana::afisare(ostream &out)
+
+{
+    out<<nume<<" "<<sex<<" "<<varsta<<" "<<endl;
+}
+
+istream& operator>>(istream &in, persoana &p)
+
+{
+    p.citire(in);
+    return in;
+}
+
+ostream& operator<<(ostream &out, persoana &p)
+
+{
+    p.afisare(out);
+    return out;
+}
+
+persoana& persoana::operator=(const persoana &p)
+
+{
+    nume=p.nume;
+    sex=p.sex;
+    varsta=p.varsta;
+    return *this;
+}
+
+class profesor:public persoana
+
+{
+    string materie;
+public:
+    profesor(string, char, int, string);
+    profesor(const profesor&);
+    void citire(istream &in);
+    void afisare(ostream &out);
+    friend istream& operator>>(istream &in, profesor &p);
+    friend ostream& operator<<(ostream &out, profesor &p);
+    profesor& operator=(const profesor&);
+};
+
+profesor::profesor(string num=" ", char s=' ', int v=0, string mat=" "):persoana(num,s,v)
+
+{
+    materie=mat;
+}
+
+profesor::profesor(const profesor& p):persoana(p.nume,p.sex,p.varsta)
+
+{
+    this->materie=p.materie;
+}
+
+void profesor::citire(istream &in)
+
+{
+    persoana::citire(in);
+    cout<<"Materie: ";
+    in>>materie;
+}
+
+void profesor::afisare(ostream &out)
+
+{
+    out<<"Datele profesorului sunt: ";
+    persoana::afisare(out);
+    out<<"Materia predata este: ";
+    out<<materie<<endl;
+}
+
+istream& operator>>(istream &in, profesor &p)
+
+{
+    p.citire(in);
+    return in;
+}
+
+ostream& operator<<(ostream &out, profesor &p)
+
+{
+    p.afisare(out);
+    return out;
+}
+
+profesor& profesor::operator=(const profesor &p)
+
+{
+    if (this!=&p)
+        materie=p.materie;
+    return *this;
+}
+
+
+class elev:public persoana
+
+{
     float medie;
 public:
+    elev(string, char, int, float);
+    elev(const elev&);
     void citire(istream &in);
     void afisare(ostream &out);
     friend istream& operator>>(istream &in, elev &e);
     friend ostream& operator<<(ostream &out, elev &e);
-    elev(string, char, int, float);
-    elev();
+    elev& operator=(const elev&);
     void promovabilitate();
     void performanta();
 };
@@ -42,33 +187,22 @@ void elev::promovabilitate()
         cout<<"Elevul "<<nume<<" nu a promovat clasa"<<endl;
 }
 
-elev::elev()
+elev::elev(string num=" ", char s=' ', int v=0, float m=0):persoana(num,s,v)
 
 {
-    this->nume="n/a";
-    this->sex='-';
-    this->varsta=0;
-    this->medie=0;
+    medie=m;
 }
 
-elev::elev(string nume, char sex, int varsta, float medie)
+elev::elev(const elev& e):persoana(e.nume,e.sex,e.varsta)
 
 {
-    this->nume=nume;
-    this->sex=sex;
-    this->varsta=varsta;
-    this->medie=medie;
+    this->medie=e.medie;
 }
 
 void elev::citire(istream &in)
 
 {
-    cout<<"Nume: ";
-    in>>nume;
-    cout<<"Sex: ";
-    in>>sex;
-    cout<<"Varsta: ";
-    in>>varsta;
+    persoana::citire(in);
     cout<<"Medie: ";
     in>>medie;
 }
@@ -76,7 +210,10 @@ void elev::citire(istream &in)
 void elev::afisare(ostream &out)
 
 {
-    out<<nume<<" "<<sex<<" "<<varsta<<" "<<medie<<endl;
+    out<<"Datele elevului sunt: ";
+    persoana::afisare(out);
+    out<<"Media generala a elevului este: ";
+    out<<medie<<endl;
 }
 
 istream& operator>>(istream &in, elev &e)
@@ -93,18 +230,30 @@ ostream& operator<<(ostream &out, elev &e)
     return out;
 }
 
+elev& elev::operator=(const elev &e)
+
+{
+    if (this!=&e)
+        medie=e.medie;
+    return *this;
+}
+
+
 class clasa
+
 {
     int n;
+    int nr_profi;
     int numar;
     char litera;
     string specializare;
     int sala;
-    elev c[30];
+    profesor *p;
+    elev *c;
 public:
     clasa();
-    clasa(int,char,string,int,int);
-    clasa(clasa&);
+    clasa(int,int,int,int,char,string,elev*,profesor*);
+    clasa(const clasa&);
     ~clasa();
     clasa& operator=(const clasa&);
     void citire(istream &in);
@@ -115,6 +264,7 @@ public:
 };
 
 void clasa::situatie()
+
 {
     for(int i=0; i<n; i++)
     {
@@ -127,6 +277,9 @@ void clasa::situatie()
 clasa::clasa()
 
 {
+    this->p=NULL;
+    this->nr_profi=0;
+    this->c=NULL;
     this->n=0;
     this->numar=0;
     this->litera='-';
@@ -134,9 +287,12 @@ clasa::clasa()
     this->sala=0;
 }
 
-clasa::clasa(int numar,char litera, string specializare, int sala, int n)
+clasa::clasa(int numar, int sala, int n, int nr_profi, char litera, string specializare, elev *c, profesor *p)
 
 {
+    this->nr_profi=nr_profi;
+    this->p=p;
+    this->c=c;
     this->n=n;
     this->numar=numar;
     this->litera=litera;
@@ -144,7 +300,7 @@ clasa::clasa(int numar,char litera, string specializare, int sala, int n)
     this->sala=sala;
 }
 
-clasa::clasa(clasa &x)
+clasa::clasa(const clasa &x)
 
 {
     this->numar=x.numar;
@@ -164,8 +320,6 @@ clasa::~clasa()
 void clasa::citire(istream &in)
 
 {
-    cout<<"Nr. de elevi al clasei este: ";
-    in>>n;
     cout<<"Nr. clasei: ";
     in>>numar;
     cout<<"Litera: ";
@@ -174,9 +328,19 @@ void clasa::citire(istream &in)
     in>>specializare;
     cout<<"Sala: ";
     in>>sala;
+    cout<<"Nr. de profesori care predau la clasa este: ";
+    in>>nr_profi;
+    p=new profesor[nr_profi];
+    for(int i=0; i<nr_profi; i++)
+    {
+        in>>p[i];
+    }
+    cout<<"Nr. de elevi al clasei este: ";
+    in>>n;
+    c=new elev[n];
     for(int i=0; i<n; i++)
     {
-        c[i].citire(in);
+        in>>c[i];
     }
 
 }
@@ -191,6 +355,7 @@ istream& operator>>(istream &in, clasa &x)
 clasa& clasa::operator=(const clasa &x)
 
 {
+    c=x.c;
     numar=x.numar;
     litera=x.litera;
     specializare=x.specializare;
@@ -204,21 +369,25 @@ void clasa::afisare(ostream &out)
 {
     out<<"Datele clasei sunt: ";
     out<<numar<<" "<<litera<<" "<<specializare<<" "<<sala<<"\n";
-    out<<"Elevii clasei sunt: "<<endl;
+    for(int i=0; i<nr_profi; i++)
+    {
+        out<<p[i];
+    }
     for(int i=0; i<n; i++)
     {
-        c[i].afisare(out);
+        out<<c[i];
     }
 }
+
 ostream& operator<<(ostream& out, clasa& x)
+
 {
     x.afisare(out);
     return out;
 }
 
-
-
 int main()
+
 {
     clasa p;
     cout<<"Cititi datele clasei"<<endl;
