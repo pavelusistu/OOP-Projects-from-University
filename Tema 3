@@ -477,11 +477,11 @@ catalog* catalog::get_instance(string numecatalog)
 catalog::catalog(const catalog& obj)
 {
     this->numecatalog= obj.numecatalog;
-    for(unsigned int i=0;i<elevi.size();i++)
+    for(unsigned int i=0; i<elevi.size(); i++)
         this->elevi.push_back(obj.elevi[i]);
-    for(unsigned int i=0;i<profesori.size();i++)
+    for(unsigned int i=0; i<profesori.size(); i++)
         this->profesori.push_back(obj.profesori[i]);
-    for(unsigned int i=0;i<profesori.size();i++)
+    for(unsigned int i=0; i<profesori.size(); i++)
         this->profesori.push_back(obj.profesori[i]);
 }
 
@@ -517,9 +517,9 @@ catalog& catalog::operator=(catalog& obj)
     if (this != &obj)
     {
         this->numecatalog=obj.numecatalog;
-        for(unsigned int i=0;i<elevi.size();i++)
+        for(unsigned int i=0; i<elevi.size(); i++)
             this->elevi.push_back(obj.elevi[i]);
-        for(unsigned int i=0;i<profesori.size();i++)
+        for(unsigned int i=0; i<profesori.size(); i++)
             this->profesori.push_back(obj.profesori[i]);
 
     }
@@ -528,13 +528,13 @@ catalog& catalog::operator=(catalog& obj)
 void catalog::afis_elevi()
 {
 
-    for(unsigned int i=0;i<elevi.size();i++)
+    for(unsigned int i=0; i<elevi.size(); i++)
         cout<<*elevi[i];
 }
 
 void catalog::afis_profi()
 {
-    for(unsigned int i=0;i<profesori.size();i++)
+    for(unsigned int i=0; i<profesori.size(); i++)
         cout<<*profesori[i];
 }
 void catalog::menu_output()
@@ -543,11 +543,11 @@ void catalog::menu_output()
     cout<<"Catalog: " << this->numecatalog << "\n";
     cout<<"\n\t\tMENIU:";
     cout<<"\n===============================================\n";
-    cout<<"1. Citeste elevi\n";
-    cout<<"2. Citeste profesori\n";
-    cout<<"3. Afiseaza elevi\n";
-    cout<<"4. Afiseaza profesori\n";
-    cout<<"0. Iesire.\n";
+    cout<<"1.Citeste elevi\n";
+    cout<<"2.Citeste profesori\n";
+    cout<<"3.Afiseaza elevi\n";
+    cout<<"4.Afiseaza profesori\n";
+    cout<<"0.Iesire.\n";
 
 }
 void menu_singleton1()
@@ -568,11 +568,11 @@ void menu_singleton1()
             c->afis_elevi();
         if(option==4)
             c->afis_profi();
-        if (option == 0)
+        if (option==0)
         {
             cout<<"\nRevenire in meniul anterior!\n";
         }
-        if (option < 0 || option>4)
+        if (option<0 || option>4)
         {
             cout<<"\nSelectie invalida\n";
         }
@@ -663,7 +663,10 @@ int main()
             s->add_pers();
             cout<<s->give_data();
         }
-
+        if(option==0)
+        {
+            cout<<"\nEXIT\n";
+        }
         if (option<0 || option>6)
         {
             cout<<"\nSelectie invalida\n";
