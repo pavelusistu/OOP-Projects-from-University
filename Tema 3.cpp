@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include "rlutil.h"
 using namespace std;
 
 class persoana
@@ -97,8 +98,6 @@ public:
     profesor(const profesor&);
     void citire(istream &in);
     void afisare(ostream &out);
-    friend istream& operator>>(istream &in, profesor &p);
-    friend ostream& operator<<(ostream &out, profesor &p);
     profesor& operator=(const profesor&);
 };
 
@@ -131,25 +130,15 @@ void profesor::afisare(ostream &out)
     out<<materie<<endl;
 }
 
-istream& operator>>(istream &in, profesor &p)
-
-{
-    p.citire(in);
-    return in;
-}
-
-ostream& operator<<(ostream &out, profesor &p)
-
-{
-    p.afisare(out);
-    return out;
-}
 
 profesor& profesor::operator=(const profesor &p)
 
 {
     if (this!=&p)
+    {
+        persoana::operator=(p);
         materie=p.materie;
+    }
     return *this;
 }
 
@@ -163,8 +152,6 @@ public:
     elev(const elev&);
     void citire(istream &in);
     void afisare(ostream &out);
-    friend istream& operator>>(istream &in, elev &e);
-    friend ostream& operator<<(ostream &out, elev &e);
     elev& operator=(const elev&);
     void promovabilitate();
     void performanta();
@@ -223,25 +210,17 @@ void elev::afisare(ostream &out)
     out<<medie<<endl;
 }
 
-istream& operator>>(istream &in, elev &e)
 
-{
-    e.citire(in);
-    return in;
-}
-
-ostream& operator<<(ostream &out, elev &e)
-
-{
-    e.afisare(out);
-    return out;
-}
 
 elev& elev::operator=(const elev &e)
 
 {
     if (this!=&e)
+    {
+        persoana::operator=(e);
         medie=e.medie;
+    }
+
     return *this;
 }
 
@@ -255,11 +234,10 @@ class clasa
     char litera;
     string specializare;
     int sala;
-    profesor *p;
-    elev *c;
+    vector <profesor*> p;
+    vector <elev*> c;
 public:
-    clasa();
-    clasa(int,int,int,int,char,string,elev*,profesor*);
+    clasa(int,int,int,int,char,string);
     clasa(const clasa&);
     ~clasa();
     clasa& operator=(const clasa&);
@@ -269,25 +247,11 @@ public:
     friend ostream& operator<<(ostream &out, clasa &x);
 };
 
-clasa::clasa()
 
-{
-    this->p=NULL;
-    this->nr_profi=0;
-    this->c=NULL;
-    this->n=0;
-    this->numar=0;
-    this->litera='-';
-    this->specializare="-";
-    this->sala=0;
-}
-
-clasa::clasa(int numar, int sala, int n, int nr_profi, char litera, string specializare, elev *c, profesor *p)
+clasa::clasa(int numar=0, int sala=0, int n=0, int nr_profi=0, char litera=' ', string specializare=" ")
 
 {
     this->nr_profi=nr_profi;
-    this->p=p;
-    this->c=c;
     this->n=n;
     this->numar=numar;
     this->litera=litera;
@@ -302,13 +266,27 @@ clasa::clasa(const clasa &x)
     this->litera=x.litera;
     this->specializare=x.specializare;
     this->sala=x.sala;
+    for(unsigned int i=0; i<x.c.size(); i++)
+        this->c.push_back(x.c[i]);
+    for(unsigned int i=0; i<x.p.size(); i++)
+        this->p.push_back(x.p[i]);
 
 }
 
 clasa::~clasa()
 
 {
-
+    n=0;
+    numar=0;
+    litera=' ';
+    specializare=" ";
+    sala=0;
+    for(unsigned int i=0; i<c.size(); i++)
+        delete c[i];
+    c.clear();
+    for(unsigned int i=0; i<p.size(); i++)
+        delete p[i];
+    p.clear();
 }
 
 
@@ -325,17 +303,21 @@ void clasa::citire(istream &in)
     in>>sala;
     cout<<"Nr. de profesori care predau la clasa este: ";
     in>>nr_profi;
-    p=new profesor[nr_profi];
     for(int i=0; i<nr_profi; i++)
     {
-        in>>p[i];
+        profesor *x=new profesor;
+        in>>*x;
+        p.push_back(x);
+
     }
     cout<<"Nr. de elevi al clasei este: ";
     in>>n;
-    c=new elev[n];
     for(int i=0; i<n; i++)
     {
-        in>>c[i];
+        elev *y=new elev;
+        in>>*y;
+        c.push_back(y);
+
     }
 
 }
@@ -350,12 +332,15 @@ istream& operator>>(istream &in, clasa &x)
 clasa& clasa::operator=(const clasa &x)
 
 {
-    c=x.c;
     numar=x.numar;
     litera=x.litera;
     specializare=x.specializare;
     sala=x.sala;
     n=x.n;
+    for(unsigned int i=0; i<x.c.size(); i++)
+        this->c.push_back(x.c[i]);
+    for(unsigned int i=0; i<x.p.size(); i++)
+        this->p.push_back(x.p[i]);
     return *this;
 }
 
@@ -364,15 +349,15 @@ void clasa::afisare(ostream &out)
 {
     out<<"Datele clasei sunt: ";
     out<<numar<<" "<<litera<<" "<<specializare<<" "<<sala<<"\n";
-    for(int i=0; i<nr_profi; i++)
+    for(unsigned int i=0; i<p.size(); i++)
     {
-        out<<p[i];
+        out<<*p[i];
     }
-    for(int i=0; i<n; i++)
+    for(unsigned int i=0; i<c.size(); i++)
     {
-        out<<c[i];
-        c[i].promovabilitate();
-        c[i].performanta();
+        out<<*c[i];
+        c[i]->promovabilitate();
+        c[i]->performanta();
     }
 }
 
@@ -397,7 +382,7 @@ public:
             v[i]=p[i];
         }
     }
-    scoala(scoala &a)
+    scoala(const scoala &a)
     {
         n=a.n;
         v=new t[n];
@@ -438,6 +423,19 @@ public:
             out<<g.v[i];
         }
         return out;
+    }
+    scoala <t>& operator=(const scoala <t> & x)
+    {
+        if(this!=&x)
+        {
+            n=x.n;
+            v=new t[n];
+            for(int i=0; i<n; i++)
+            {
+                v[i]=x.v[i];
+            }
+        }
+        return *this;
     }
 };
 
@@ -576,9 +574,10 @@ void menu_singleton1()
         {
             cout<<"\nSelectie invalida\n";
         }
-        cout<<'\n';
-        system("pause");
-        system("cls");
+        cout<<"\n";
+        cout<<"Apasati ENTER...\n";
+        cin.ignore().get();
+        rlutil::cls();
     }
     while(option!=0);
 }
@@ -587,7 +586,6 @@ class Singleton2
     static Singleton2 *instance;
     int data;
     vector<persoana*> p;
-    //Private constructor so that no objects can be created.
     Singleton2()
     {
         data = 0;
@@ -606,14 +604,12 @@ public:
         cin>>*x;
         p.push_back(x);
     }
-    int get_data(){return data;}
-    void set_data(int data){this->data=data;}
-    int give_data()
+    int generare_cod()
     {
 
         for(unsigned int i=0; i<p.size(); i++)
-        data=i+1000;
-            return data;
+            data=i+1000;
+        return data;
     }
 };
 Singleton2 *Singleton2::instance = 0;
@@ -623,7 +619,7 @@ int main()
 
     int option;
     option=0;
-    clasa c;
+    clasa d;
     scoala <clasa> x;
     Singleton2 *s = s->get_instance();
     do
@@ -640,11 +636,11 @@ int main()
         cin>>option;
         if(option==1)
         {
-            cin>>c;
+            cin>>d;
         }
         if(option==2)
         {
-            cout<<c;
+            cout<<d;
         }
         if(option==3)
         {
@@ -661,7 +657,7 @@ int main()
         if(option==6)
         {
             s->add_pers();
-            cout<<s->give_data();
+            cout<<s->generare_cod();
         }
         if(option==0)
         {
@@ -671,9 +667,10 @@ int main()
         {
             cout<<"\nSelectie invalida\n";
         }
-        cout<<'\n';
-        system("pause");
-        system("cls");
+        cout<<"\n";
+        cout<<"Apasati ENTER...\n";
+        cin.ignore().get();
+        rlutil::cls();
     }
     while(option!=0);
 
