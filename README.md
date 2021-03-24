@@ -1,1 +1,1 @@
-# Teme-POO
+# OOP-Projects-from-University
